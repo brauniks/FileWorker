@@ -10,7 +10,6 @@
     /// </summary>
     public static class DirectoryDataFactory
     {
-
         public  static string[] GetFilesFromPattern(string filesPath , KindOfFileEnum type = KindOfFileEnum.Any)
         {
             return Directory.GetFiles(filesPath, type.GetSearchPattern());

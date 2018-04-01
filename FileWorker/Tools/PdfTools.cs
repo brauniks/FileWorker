@@ -1,6 +1,7 @@
 ﻿namespace FileWorker
 {
     using Common;
+    using Interfaces;
     using iTextSharp.text;
     using iTextSharp.text.pdf;
     using iTextSharp.tool.xml;
@@ -12,7 +13,7 @@
     /// <summary>
     /// Defines the <see cref="PdfTools" />
     /// </summary>
-    internal class PdfTools
+    internal class PdfTools : IProcessBarHandler
     {
         /// <summary>
         /// Gets or sets the eventHandler
@@ -38,11 +39,11 @@
         }
 
         /// <summary>
-        /// The CreatePdfFromHtmlAsync
+        /// The CreatePdfFromHtmlFileAsync
         /// </summary>
         /// <param name="fileList">The <see cref="string[]"/></param>
         /// <returns>The <see cref="Task"/></returns>
-        public async Task CreatePdfFromHtmlAsync(string[] fileList)
+        public async Task CreatePdfFromHtmlFileAsync(string[] fileList)
         {
             try
             {
@@ -142,7 +143,7 @@
 
                 for (int i = 1; i < reader.NumberOfPages; i++)
                 {
-                    var outPath = $"{outputDirectoryPath}\\{fileName.Replace(".pdf","")}_{i}_page.pdf";
+                    var outPath = $"{outputDirectoryPath}\\{fileName.Replace(".pdf", "")}_{i}_page.pdf";
                     sourceDocument = new Document(reader.GetPageSizeWithRotation(i));
                     pdfCopyProvider = new PdfCopy(sourceDocument, new FileStream(outPath, FileMode.Create));
                     sourceDocument.Open();

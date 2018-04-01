@@ -1,4 +1,5 @@
 ﻿using FileWorker.Common;
+using FileWorker.Tools;
 using PdfFile.Common;
 using PdfFile.Tools;
 using System;
@@ -27,6 +28,8 @@ namespace FileWorker
         private string[] fileList { get; set; }
 
         private bool inUse { get; set; }
+        public object TransformXMLToHTML { get; private set; }
+        public string fileXslt { get; private set; }
 
         /// <summary>
         /// The Progress
@@ -103,7 +106,7 @@ namespace FileWorker
             try
             {
                 this.inUse = true;
-                await files.CreatePdfFromHtmlAsync(fileList);
+                await files.CreatePdfFromHtmlFileAsync(fileList);
             }
             catch (ProcessFileException ex)
             {
@@ -180,6 +183,59 @@ namespace FileWorker
 
             this.textBox2.Text = Path.GetDirectoryName(fileList[0]);
             this.SetGenerateButtonStatus(button5,button4,fileList.Length, true);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+            this.fileList = DirectoryDataFactory.GetDirectoryFilesFromBrowserDialog("*xml");
+            if (fileList != null)
+            {
+                var count = fileList.Length;
+                MessageBox.Show($"Files found: {count.ToString()} files");
+                if (count == 0)
+                {
+                    return;
+                }
+            }
+            else
+            {
+                return;
+            }
+
+            this.textBox3.Text = Path.GetDirectoryName(fileList[0]);
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            this.fileXslt = DirectoryDataFactory.GetFilePathFromDialog(KindOfFileEnum.Xslt);
+            if (string.IsNullOrEmpty(fileXslt))
+            {
+                return;                
+            }
+            else
+            {
+                MessageBox.Show($"Files found: {fileXslt}");
+                this.textBox4.Text = fileXslt;
+                this.EnableGenerateButton();
+            }
+        }
+
+        private void EnableGenerateButton()
+        {
+            if (this.textBox3.Text != string.Empty && this.textBox4.Text != string.Empty)
+                this.button6.Enabled = true;
+        }
+
+        private async void button6_Click(object sender, EventArgs e)
+        {
+            var timer = StatisticsTools.TimerFactory();
+            var directoryXMLPath = DirectoryDataFactory.CreateChildDirectory(this.fileList[0], $"xmle{ DateTime.Now.ToString("ddHHmm")}");
+
+            var xmlTransformer = new XmlTransformer();
+            await xmlTransformer.TransformXMLToHTML(this.fileList, this.fileXslt, directoryXMLPath);
+
+            StatisticsTools.ShowTaskCompleted(timer);
         }
     }
 }

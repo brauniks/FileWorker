@@ -65,10 +65,13 @@
     <Compile Include="FileWorker.Designer.cs">
       <DependentUpon>FileWorker.cs</DependentUpon>
     </Compile>
+    <Compile Include="Interfaces\IProcessBarHandler.cs" />
+    <Compile Include="Tools\HtmlTools.cs" />
     <Compile Include="Tools\PdfTools.cs" />
     <Compile Include="Tools\StatisticsTools.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tools\XmlTransformer.cs" />
     <EmbeddedResource Include="FileWorker.resx">
       <DependentUpon>FileWorker.cs</DependentUpon>
     </EmbeddedResource>

@@ -27,6 +27,15 @@ namespace FileWorker.Common
                 case KindOfFileEnum.Doc:
                     searchPattern = "*doc";
                     break;
+                case KindOfFileEnum.Xml:
+                    searchPattern = "*xml";
+                    break;
+                case KindOfFileEnum.Xslt:
+                    searchPattern = "*xslt";
+                    break;
+                case KindOfFileEnum.Html:
+                    searchPattern = "*html";
+                    break;
                 default:
                     searchPattern = "*";
                     break;
