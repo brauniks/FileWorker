@@ -14,10 +14,11 @@ using System.Windows.Forms;
 
 namespace FileWorker
 {
-    public partial class Form1 : Form
+    public partial class FileWorker : Form
     {
-        public Form1()
+        public FileWorker()
         {
+            this.inUse = false;
             InitializeComponent();
         }
         /// <summary>
@@ -25,6 +26,7 @@ namespace FileWorker
         /// </summary>
         private string[] fileList { get; set; }
 
+        private bool inUse { get; set; }
 
         /// <summary>
         /// The Progress
@@ -50,16 +52,21 @@ namespace FileWorker
         /// <param name="e">The <see cref="EventArgs"/></param>
         private void button2_Click(object sender, EventArgs e)
         {
-            this.fileList = DialogFactory.GetDirectoryFilesFromBrowserDialog("*html");
+            this.fileList = DirectoryDataFactory.GetDirectoryFilesFromBrowserDialog("*html");
             if (fileList != null)
             {
-                MessageBox.Show($"Files found: {fileList.Length.ToString()} files");
+                var count = fileList.Length;
+                MessageBox.Show($"Files found: {count.ToString()} files");
+                if (count == 0)
+                {
+                    return;
+                }
             }
-            else 
+            else
             {
                 return;
             }
-
+            
             this.textBox1.Text = Path.GetDirectoryName(fileList[0]);
             this.SetGenerateButtonStatus(button2,button3,fileList.Length, true);
         }
@@ -85,23 +92,43 @@ namespace FileWorker
         /// <param name="e">The <see cref="EventArgs"/></param>
         private async void button3_Click(object sender, EventArgs e)
         {
-            var timing = Statistics.TimerFactory();
+            if (!this.CheckIfOperationPossible())
+            {
+                return;
+            }
+            var timing = StatisticsTools.TimerFactory();
             this.SetGenerateButtonStatus(button3,button2,0, false);
             PdfTools files = new PdfTools();
             files.eventHandler += this.ProgressBarEventHandler;
             try
             {
+                this.inUse = true;
                 await files.CreatePdfFromHtmlAsync(fileList);
             }
             catch (ProcessFileException ex)
             {
                 MessageBox.Show($"Error in generating PDF file {Environment.NewLine} Current File:{ex.args.currentFileName}");
             }
+            finally
+            {
+                this.inUse = false;
+            }
 
-            Statistics.ShowTaskCompleted(timing);
+            StatisticsTools.ShowTaskCompleted(timing);
 
             this.SetGenerateButtonStatus(button2, button3, 0, true);
         }
+
+        private bool CheckIfOperationPossible()
+        {
+            if (inUse)
+            {
+                MessageBox.Show("There is a process running in background");
+                return false;
+            }
+            else return true;
+        }
+
 
         /// <summary>
         /// The button4_Click
@@ -110,11 +137,30 @@ namespace FileWorker
         /// <param name="e">The <see cref="EventArgs"/></param>
         private async void button4_Click(object sender, EventArgs e)
         {
+            if (!this.CheckIfOperationPossible())
+            {
+                return;
+            }
+
+            this.SetGenerateButtonStatus(button5, button4, 0, false);
             PdfTools pdf = new PdfTools();
             pdf.eventHandler += this.ProgressBarEventHandler;
-            var timer = Statistics.TimerFactory();
-            await pdf.SplitPdfFile(@"C:\pdffolder\wzorce.pdf", @"C:\pdffolder");
-            Statistics.ShowTaskCompleted(timer);
+            var timer = StatisticsTools.TimerFactory();
+            try
+            {
+                this.inUse = true;
+                await pdf.SplitPdfFile(this.fileList[0]);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            finally
+            {
+                this.inUse = false;
+            }
+            StatisticsTools.ShowTaskCompleted(timer);
+            this.SetGenerateButtonStatus(button5, button4, 0, true);
         }
 
         /// <summary>
@@ -124,13 +170,14 @@ namespace FileWorker
         /// <param name="e">The <see cref="EventArgs"/></param>
         private void button5_Click(object sender, EventArgs e)
         {
-            this.fileList = new string[] { DialogFactory.GetFilePathFromDialog(KindOfFileEnum.Pdf) };
+            this.fileList = new string[] { DirectoryDataFactory.GetFilePathFromDialog(KindOfFileEnum.Pdf) };
 
             if (string.IsNullOrEmpty(this.fileList[0]))
             {
                 MessageBox.Show("Error: please input correct .pdf file");
                 return;
             }
+
             this.textBox2.Text = Path.GetDirectoryName(fileList[0]);
             this.SetGenerateButtonStatus(button5,button4,fileList.Length, true);
         }

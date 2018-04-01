@@ -1,14 +1,20 @@
 ﻿namespace PdfFile.Common
 {
     using FileWorker.Common;
+    using System;
     using System.IO;
     using System.Windows.Forms;
 
     /// <summary>
-    /// Defines the <see cref="DialogFactory" />
+    /// Defines the <see cref="DirectoryInfoFactory" />
     /// </summary>
-    public static class DialogFactory
+    public static class DirectoryDataFactory
     {
+
+        public  static string[] GetFilesFromPattern(string filesPath , KindOfFileEnum type = KindOfFileEnum.Any)
+        {
+            return Directory.GetFiles(filesPath, type.GetSearchPattern());
+        }
         /// <summary>
         /// The GetFileDialog
         /// </summary>
@@ -41,6 +47,18 @@
                     return null;
                 }
             }
+        }
+
+        public static string CreateChildDirectory(string filePath, string pattern)
+        {
+            var directoryName = Path.GetDirectoryName(filePath);
+            var outputDirectoryPath = $"{directoryName}\\{pattern}";
+
+            if (!Directory.Exists(outputDirectoryPath))
+            {
+                Directory.CreateDirectory(outputDirectoryPath);
+            }
+            return outputDirectoryPath;
         }
     }
 }

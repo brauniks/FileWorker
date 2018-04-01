@@ -48,11 +48,7 @@
             {
                 await Task.Factory.StartNew(() =>
                   {
-                      var directoryPath = $"{ Path.GetDirectoryName(fileList[0])}\\pdfy{DateTime.Now.ToString("ddHHmm")}";
-                      if (!Directory.Exists(directoryPath))
-                      {
-                          Directory.CreateDirectory(directoryPath);
-                      }
+                      var directoryPath = DirectoryDataFactory.CreateChildDirectory(fileList[0], $"pdfy{ DateTime.Now.ToString("ddHHmm")}");
 
                       this.args.totalFiles = fileList.Length;
                       Parallel.For(0, this.args.totalFiles, new ParallelOptions() { MaxDegreeOfParallelism = 5 }, (i) =>
@@ -115,7 +111,7 @@
         {
             await Task.Factory.StartNew(() =>
             {
-                var fileList = Directory.GetFiles(this.filePath, fileType.GetSearchPattern());
+                var fileList = DirectoryDataFactory.GetFilesFromPattern(this.filePath, fileType);
 
                 Parallel.For(0, fileList.Length, (i) =>
                 {
@@ -130,25 +126,32 @@
         /// <param name="v1">The <see cref="string"/></param>
         /// <param name="v2">The <see cref="string"/></param>
         /// <returns>The <see cref="Task"/></returns>
-        public async Task SplitPdfFile(string filePath, string outputDirectoryPath)
+        public async Task SplitPdfFile(string filePath)
         {
             await Task.Factory.StartNew(() =>
             {
+                var outputDirectoryPath = DirectoryDataFactory.CreateChildDirectory(filePath, $"pages{ DateTime.Now.ToString("ddHHmm")}");
+
+
                 PdfReader reader = new PdfReader(filePath); ;
                 Document sourceDocument = null;
                 PdfCopy pdfCopyProvider = null;
                 PdfImportedPage importedPage = null;
                 var fileName = Path.GetFileName(filePath);
+                this.args.totalFiles = reader.NumberOfPages;
 
                 for (int i = 1; i < reader.NumberOfPages; i++)
                 {
-                    var outPath = $"{outputDirectoryPath}\\{fileName}_{i}_page.pdf";
+                    var outPath = $"{outputDirectoryPath}\\{fileName.Replace(".pdf","")}_{i}_page.pdf";
                     sourceDocument = new Document(reader.GetPageSizeWithRotation(i));
                     pdfCopyProvider = new PdfCopy(sourceDocument, new FileStream(outPath, FileMode.Create));
                     sourceDocument.Open();
                     importedPage = pdfCopyProvider.GetImportedPage(reader, i);
                     pdfCopyProvider.AddPage(importedPage);
                     sourceDocument.Close();
+
+                    this.args.currentFile++;
+                    this.eventHandler?.Invoke(this.args);
                 }
                 reader.Close();
             });

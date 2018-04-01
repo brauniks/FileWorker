@@ -1,6 +1,6 @@
 ﻿namespace FileWorker
 {
-    partial class Form1
+    partial class FileWorker
     {
         /// <summary>
         /// Required designer variable.
@@ -76,6 +76,7 @@
             // 
             // button3
             // 
+            this.button3.Enabled = false;
             this.button3.Location = new System.Drawing.Point(357, 99);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(75, 23);
@@ -86,6 +87,7 @@
             // 
             // button4
             // 
+            this.button4.Enabled = false;
             this.button4.Location = new System.Drawing.Point(357, 129);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(75, 23);
@@ -129,7 +131,7 @@
             this.label2.TabIndex = 11;
             this.label2.Text = "Split PDF";
             // 
-            // Form1
+            // FileWorker
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -145,7 +147,7 @@
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.textBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-            this.Name = "Form1";
+            this.Name = "FileWorker";
             this.Text = "Form1";
             this.ResumeLayout(false);
             this.PerformLayout();

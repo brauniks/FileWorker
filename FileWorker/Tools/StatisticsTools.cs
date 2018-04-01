@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace PdfFile.Tools
 {
-    public static class Statistics
+    public static class StatisticsTools
     {
         public static Stopwatch TimerFactory()
         {
