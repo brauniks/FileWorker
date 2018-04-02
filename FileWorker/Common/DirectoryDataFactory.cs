@@ -32,6 +32,10 @@
             } 
         }
 
+        public static string[] GetDirectoryFilesFromPath(string path)
+        {
+            return Directory.GetFiles(path);
+        }
         public static string[] GetDirectoryFilesFromBrowserDialog(string filterPath)
         {
             using (var fbd = new FolderBrowserDialog())
@@ -58,6 +62,11 @@
                 Directory.CreateDirectory(outputDirectoryPath);
             }
             return outputDirectoryPath;
+        }
+
+        public static void DeleteDirectory(string path)
+        {
+            Directory.Delete(path,true);
         }
     }
 }

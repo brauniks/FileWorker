@@ -39,11 +39,11 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.button7 = new System.Windows.Forms.Button();
+            this.textBox4 = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.button7 = new System.Windows.Forms.Button();
+            this.textBox3 = new System.Windows.Forms.TextBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -78,7 +78,6 @@
             // 
             // button3
             // 
-            this.button3.Enabled = false;
             this.button3.Location = new System.Drawing.Point(213, 74);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(75, 23);
@@ -89,7 +88,6 @@
             // 
             // button4
             // 
-            this.button4.Enabled = false;
             this.button4.Location = new System.Drawing.Point(207, 68);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(75, 23);
@@ -167,13 +165,23 @@
             this.tabPage3.Text = "XML-PDF";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // textBox3
+            // button7
             // 
-            this.textBox3.Enabled = false;
-            this.textBox3.Location = new System.Drawing.Point(30, 36);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(168, 20);
-            this.textBox3.TabIndex = 13;
+            this.button7.Location = new System.Drawing.Point(213, 73);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(75, 23);
+            this.button7.TabIndex = 16;
+            this.button7.Text = "StyleSheet";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
+            // 
+            // textBox4
+            // 
+            this.textBox4.Enabled = false;
+            this.textBox4.Location = new System.Drawing.Point(30, 75);
+            this.textBox4.Name = "textBox4";
+            this.textBox4.Size = new System.Drawing.Size(168, 20);
+            this.textBox4.TabIndex = 15;
             // 
             // button1
             // 
@@ -187,7 +195,6 @@
             // 
             // button6
             // 
-            this.button6.Enabled = false;
             this.button6.Location = new System.Drawing.Point(213, 106);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(75, 23);
@@ -196,23 +203,13 @@
             this.button6.UseVisualStyleBackColor = true;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
-            // textBox4
+            // textBox3
             // 
-            this.textBox4.Enabled = false;
-            this.textBox4.Location = new System.Drawing.Point(30, 75);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(168, 20);
-            this.textBox4.TabIndex = 15;
-            // 
-            // button7
-            // 
-            this.button7.Location = new System.Drawing.Point(213, 73);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(75, 23);
-            this.button7.TabIndex = 16;
-            this.button7.Text = "StyleSheet";
-            this.button7.UseVisualStyleBackColor = true;
-            this.button7.Click += new System.EventHandler(this.button7_Click);
+            this.textBox3.Enabled = false;
+            this.textBox3.Location = new System.Drawing.Point(30, 36);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(168, 20);
+            this.textBox3.TabIndex = 13;
             // 
             // FileWorker
             // 

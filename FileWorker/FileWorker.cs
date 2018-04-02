@@ -1,4 +1,8 @@
-﻿using FileWorker.Common;
+﻿using Castle.Windsor;
+using Castle.Windsor.Installer;
+using FileWorker.Common;
+using FileWorker.Controllers;
+using FileWorker.Interfaces;
 using FileWorker.Tools;
 using PdfFile.Common;
 using PdfFile.Tools;
@@ -19,6 +23,9 @@ namespace FileWorker
     {
         public FileWorker()
         {
+            container = new WindsorContainer();
+            container.Install(FromAssembly.This());
+            this.controller = this.container.Resolve<FileWorkerController>();
             this.inUse = false;
             InitializeComponent();
         }
@@ -27,8 +34,9 @@ namespace FileWorker
         /// </summary>
         private string[] fileList { get; set; }
 
+        IWindsorContainer container;
+        FileWorkerController controller;
         private bool inUse { get; set; }
-        public object TransformXMLToHTML { get; private set; }
         public string fileXslt { get; private set; }
 
         /// <summary>
@@ -55,23 +63,13 @@ namespace FileWorker
         /// <param name="e">The <see cref="EventArgs"/></param>
         private void button2_Click(object sender, EventArgs e)
         {
-            this.fileList = DirectoryDataFactory.GetDirectoryFilesFromBrowserDialog("*html");
-            if (fileList != null)
-            {
-                var count = fileList.Length;
-                MessageBox.Show($"Files found: {count.ToString()} files");
-                if (count == 0)
-                {
-                    return;
-                }
-            }
-            else
-            {
-                return;
-            }
-            
-            this.textBox1.Text = Path.GetDirectoryName(fileList[0]);
-            this.SetGenerateButtonStatus(button2,button3,fileList.Length, true);
+            controller.txtBoxEventHandler = SetCurrentPath;
+            controller.OpenFileDialogConvertHtml(textBox1);
+        }
+
+        public void SetCurrentPath(TextBox txtBox, string text)
+        {
+            txtBox.Text = text;
         }
 
         /// <summary>
@@ -99,27 +97,19 @@ namespace FileWorker
             {
                 return;
             }
-            var timing = StatisticsTools.TimerFactory();
-            this.SetGenerateButtonStatus(button3,button2,0, false);
-            PdfTools files = new PdfTools();
-            files.eventHandler += this.ProgressBarEventHandler;
             try
             {
                 this.inUse = true;
-                await files.CreatePdfFromHtmlFileAsync(fileList);
+                this.controller.GenerateHtmlToPdfFile(this.ProgressBarEventHandler);
             }
-            catch (ProcessFileException ex)
+            catch (Exception ex)
             {
-                MessageBox.Show($"Error in generating PDF file {Environment.NewLine} Current File:{ex.args.currentFileName}");
+                MessageBox.Show(ex.ToString());
             }
             finally
             {
                 this.inUse = false;
-            }
-
-            StatisticsTools.ShowTaskCompleted(timing);
-
-            this.SetGenerateButtonStatus(button2, button3, 0, true);
+            }       
         }
 
         private bool CheckIfOperationPossible()
@@ -138,21 +128,17 @@ namespace FileWorker
         /// </summary>
         /// <param name="sender">The <see cref="object"/></param>
         /// <param name="e">The <see cref="EventArgs"/></param>
-        private async void button4_Click(object sender, EventArgs e)
+        private void button4_Click(object sender, EventArgs e)
         {
             if (!this.CheckIfOperationPossible())
             {
                 return;
             }
 
-            this.SetGenerateButtonStatus(button5, button4, 0, false);
-            PdfTools pdf = new PdfTools();
-            pdf.eventHandler += this.ProgressBarEventHandler;
-            var timer = StatisticsTools.TimerFactory();
             try
             {
                 this.inUse = true;
-                await pdf.SplitPdfFile(this.fileList[0]);
+                this.controller.GenerateSplitPdf(this.ProgressBarEventHandler);
             }
             catch (Exception ex)
             {
@@ -161,9 +147,7 @@ namespace FileWorker
             finally
             {
                 this.inUse = false;
-            }
-            StatisticsTools.ShowTaskCompleted(timer);
-            this.SetGenerateButtonStatus(button5, button4, 0, true);
+            }     
         }
 
         /// <summary>
@@ -173,52 +157,28 @@ namespace FileWorker
         /// <param name="e">The <see cref="EventArgs"/></param>
         private void button5_Click(object sender, EventArgs e)
         {
-            this.fileList = new string[] { DirectoryDataFactory.GetFilePathFromDialog(KindOfFileEnum.Pdf) };
-
-            if (string.IsNullOrEmpty(this.fileList[0]))
+            try
             {
-                MessageBox.Show("Error: please input correct .pdf file");
-                return;
+                this.inUse = true;
+                controller.txtBoxEventHandler = SetCurrentPath;
+                controller.OpenFileDialogSplitPdf(textBox2);
             }
-
-            this.textBox2.Text = Path.GetDirectoryName(fileList[0]);
-            this.SetGenerateButtonStatus(button5,button4,fileList.Length, true);
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }          
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-
-            this.fileList = DirectoryDataFactory.GetDirectoryFilesFromBrowserDialog("*xml");
-            if (fileList != null)
-            {
-                var count = fileList.Length;
-                MessageBox.Show($"Files found: {count.ToString()} files");
-                if (count == 0)
-                {
-                    return;
-                }
-            }
-            else
-            {
-                return;
-            }
-
-            this.textBox3.Text = Path.GetDirectoryName(fileList[0]);
+            controller.txtBoxEventHandler = SetCurrentPath;
+            this.controller.OpenFileDialogXml(textBox3);          
         }
 
         private void button7_Click(object sender, EventArgs e)
         {
-            this.fileXslt = DirectoryDataFactory.GetFilePathFromDialog(KindOfFileEnum.Xslt);
-            if (string.IsNullOrEmpty(fileXslt))
-            {
-                return;                
-            }
-            else
-            {
-                MessageBox.Show($"Files found: {fileXslt}");
-                this.textBox4.Text = fileXslt;
-                this.EnableGenerateButton();
-            }
+            this.controller.txtBoxEventHandler = SetCurrentPath;
+            this.controller.OpenFileDialogXslt(textBox4);
         }
 
         private void EnableGenerateButton()
@@ -229,13 +189,23 @@ namespace FileWorker
 
         private async void button6_Click(object sender, EventArgs e)
         {
-            var timer = StatisticsTools.TimerFactory();
-            var directoryXMLPath = DirectoryDataFactory.CreateChildDirectory(this.fileList[0], $"xmle{ DateTime.Now.ToString("ddHHmm")}");
-
-            var xmlTransformer = new XmlTransformer();
-            await xmlTransformer.TransformXMLToHTML(this.fileList, this.fileXslt, directoryXMLPath);
-
-            StatisticsTools.ShowTaskCompleted(timer);
+            if (!this.CheckIfOperationPossible())
+            {
+                return;
+            }
+            try
+            {
+                this.inUse = true;
+                await this.controller.GenerateXmlToPdfFile();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            finally
+            {
+                this.inUse = false;
+            }
         }
     }
 }

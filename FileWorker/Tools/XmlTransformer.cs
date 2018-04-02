@@ -13,7 +13,7 @@
     /// <summary>
     /// Defines the <see cref="XmlTransformer" />
     /// </summary>
-    public class XmlTransformer : IProcessBarHandler
+    public class XmlTransformer : IProcessBarHandler, IXmlTools
     {
         public XmlTransformer()
         {
@@ -34,16 +34,16 @@
         /// <summary>
         /// Defines the cachedTransforms
         /// </summary>
-        private Dictionary<String, XslCompiledTransform> cachedTransforms = new Dictionary<string, XslCompiledTransform>();
+        public Dictionary<string, XslCompiledTransform> cachedTransforms { get; set; }
                 
         /// <summary>
-        /// The TransformXMLToHTML
+        /// The TransormXMl
         /// </summary>
         /// <param name="inputXml">The <see cref="string[]"/></param>
         /// <param name="inputXslt">The <see cref="string"/></param>
         /// <param name="outputPathDirectory">The <see cref="string"/></param>
         /// <returns>The <see cref="Task"/></returns>
-        public async Task TransformXMLToHTML(string[] inputXml, string inputXslt, string outputPathDirectory)
+        public async Task TransformXML(string[] inputXml, string inputXslt, string outputPathDirectory)
         {
             await Task.Factory.StartNew(() =>
             {
@@ -75,7 +75,7 @@
         /// </summary>
         /// <param name="xslt">The <see cref="string"/></param>
         /// <returns>The <see cref="XslCompiledTransform"/></returns>
-        private XslCompiledTransform GetAndCacheTransform(string xslt)
+        public XslCompiledTransform GetAndCacheTransform(string xslt)
         {
             XslCompiledTransform transform;
             if (!cachedTransforms.TryGetValue(xslt, out transform))

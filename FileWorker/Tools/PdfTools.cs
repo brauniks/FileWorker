@@ -13,7 +13,7 @@
     /// <summary>
     /// Defines the <see cref="PdfTools" />
     /// </summary>
-    internal class PdfTools : IProcessBarHandler
+    internal class PdfTools : IProcessBarHandler, IPdfTools
     {
         /// <summary>
         /// Gets or sets the eventHandler
@@ -43,13 +43,21 @@
         /// </summary>
         /// <param name="fileList">The <see cref="string[]"/></param>
         /// <returns>The <see cref="Task"/></returns>
-        public async Task CreatePdfFromHtmlFileAsync(string[] fileList)
+        public async Task CreatePdfFromHtmlFileAsync(string[] fileList, string outputPath = null)
         {
             try
             {
                 await Task.Factory.StartNew(() =>
                   {
-                      var directoryPath = DirectoryDataFactory.CreateChildDirectory(fileList[0], $"pdfy{ DateTime.Now.ToString("ddHHmm")}");
+                      string directoryPath;
+                      if (outputPath != null)
+                      {
+                          directoryPath = outputPath;
+                      }
+                      else
+                      {
+                          directoryPath = DirectoryDataFactory.CreateChildDirectory(fileList[0], $"pdfy{ DateTime.Now.ToString("ddHHmm")}");
+                      }
 
                       this.args.totalFiles = fileList.Length;
                       Parallel.For(0, this.args.totalFiles, new ParallelOptions() { MaxDegreeOfParallelism = 5 }, (i) =>
@@ -127,12 +135,11 @@
         /// <param name="v1">The <see cref="string"/></param>
         /// <param name="v2">The <see cref="string"/></param>
         /// <returns>The <see cref="Task"/></returns>
-        public async Task SplitPdfFile(string filePath)
+        public async Task SplitFile(string filePath)
         {
             await Task.Factory.StartNew(() =>
             {
                 var outputDirectoryPath = DirectoryDataFactory.CreateChildDirectory(filePath, $"pages{ DateTime.Now.ToString("ddHHmm")}");
-
 
                 PdfReader reader = new PdfReader(filePath); ;
                 Document sourceDocument = null;
